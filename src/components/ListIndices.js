@@ -9,11 +9,12 @@ import Typography from '@material-ui/core/Typography'
 import DeleteIcon from '@material-ui/icons/Delete'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { deleteWord, fetchWords } from '../actions/wordsActions'
 import {
   showErrorSnackbar,
+  showInfoSnackbar,
   showSuccessSnackbar,
-} from '../actions/notificationsActions'
+} from '../actions/notificationActions'
+import { deleteWord, fetchWords } from '../actions/wordsActions'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,15 +34,38 @@ const ListIndices = () => {
   const words = useSelector(state => state.words.items)
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(fetchWords())
+    dispatch(fetchWords()).then(res => {
+      switch (res.status) {
+        case 500:
+          dispatch(showErrorSnackbar(res.msg))
+
+          break
+        case 204:
+          dispatch(showInfoSnackbar(res.msg))
+
+          break
+        default:
+          break
+      }
+    })
   }, [])
 
   const onDelete = (url, index) => {
     dispatch(deleteWord(url, index)).then(res => {
-      if (res.success) {
-        console.log(res, 'fdsjalfsajd')
-        showSuccessSnackbar(res.msg)
-      } else showErrorSnackbar(res.msg)
+      switch (res.status) {
+        case 200:
+          dispatch(showSuccessSnackbar(res.msg))
+
+          break
+        case 204:
+          dispatch(showInfoSnackbar(res.msg))
+
+          break
+        default:
+          dispatch(showErrorSnackbar(res.msg))
+
+          break
+      }
     })
   }
 

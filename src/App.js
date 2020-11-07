@@ -1,14 +1,13 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import React from 'react'
-import { Container } from 'react-bootstrap'
+import Notification from './components/popUp/Notification'
 import SimpleTabs from './components/SimpleTabs'
 
 const App = () => {
   return (
     <>
-      <Container>
         <SimpleTabs />
-      </Container>
+        <Notification/>
     </>
   )
 }

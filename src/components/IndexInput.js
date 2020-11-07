@@ -2,6 +2,10 @@ import { Button, TextField } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import {
+  showErrorSnackbar,
+  showSuccessSnackbar,
+} from '../actions/notificationActions'
 import { checkWord } from '../actions/wordsActions'
 import { validateWordData } from '../validators/wordsvalidator'
 
@@ -12,6 +16,7 @@ class IndexInput extends Component {
       url: '',
       word: '',
       errors: '',
+      isLoading: false,
     }
   }
 
@@ -36,7 +41,22 @@ class IndexInput extends Component {
     }
     if (this.isValid()) {
       this.setState({ errors: {}, isLoading: true })
-      this.props.checkWord(wordData)
+      this.props.checkWord(wordData).then(res => {
+        this.setState({ isLoading: false })
+        switch (res.status) {
+          case 200:
+            if (res.apiRes == 'rejected_url')
+              this.props.showErrorSnackbar('url is already in database')
+            else if (res.apiRes == 'rejected_word')
+              this.props.showErrorSnackbar('word is already in database')
+            else this.props.showSuccessSnackbar('word saved !')
+            break
+          default:
+            this.props.showErrorSnackbar(res.msg)
+
+            break
+        }
+      })
     }
   }
   render() {
@@ -89,4 +109,8 @@ class IndexInput extends Component {
 IndexInput.propTypes = {
   checkWord: PropTypes.func.isRequired,
 }
-export default connect(null, { checkWord })(IndexInput)
+export default connect(null, {
+  checkWord,
+  showErrorSnackbar,
+  showSuccessSnackbar,
+})(IndexInput)
